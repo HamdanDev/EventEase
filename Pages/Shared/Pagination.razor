@@ -1,0 +1,70 @@
+@*
+ * Reusable Pagination Component
+ * Usage: <Pagination CurrentPage="@currentPage" TotalPages="@totalPages" OnPageChanged="@HandlePageChange" />
+ *@
+
+<div class="pagination-wrapper">
+    <div class="pagination">
+        <button type="button" 
+                class="btn btn-secondary previous" 
+                @onclick="PreviousPage" 
+                disabled="@(CurrentPage == 1)">
+            <span class="pagination-arrow">←</span> Previous
+        </button>
+        
+        <div class="page-numbers">
+            @for (int i = StartPage; i <= EndPage; i++)
+            {
+                int pageNumber = i;
+                <button type="button" 
+                        class="btn page-number @(pageNumber == CurrentPage ? "active" : "")" 
+                        @onclick="() => GoToPage(pageNumber)">
+                    @pageNumber
+                </button>
+            }
+        </div>
+        
+        <span class="page-info">Page @CurrentPage of @TotalPages</span>
+        
+        <button type="button" 
+                class="btn btn-secondary next" 
+                @onclick="NextPage" 
+                disabled="@(CurrentPage == TotalPages)">
+            Next <span class="pagination-arrow">→</span>
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int CurrentPage { get; set; } = 1;
+    [Parameter] public int TotalPages { get; set; } = 1;
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+    [Parameter] public int MaxVisiblePages { get; set; } = 5;
+
+    private int StartPage => Math.Max(1, CurrentPage - MaxVisiblePages / 2);
+    private int EndPage => Math.Min(TotalPages, StartPage + MaxVisiblePages - 1);
+
+    private async Task PreviousPage()
+    {
+        if (CurrentPage > 1)
+        {
+            await OnPageChanged.InvokeAsync(CurrentPage - 1);
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (CurrentPage < TotalPages)
+        {
+            await OnPageChanged.InvokeAsync(CurrentPage + 1);
+        }
+    }
+
+    private async Task GoToPage(int pageNumber)
+    {
+        if (pageNumber != CurrentPage && pageNumber >= 1 && pageNumber <= TotalPages)
+        {
+            await OnPageChanged.InvokeAsync(pageNumber);
+        }
+    }
+}

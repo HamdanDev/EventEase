@@ -1,0 +1,70 @@
+@page "/events"
+
+@using EventEaseApp.Services
+
+@inject NavigationManager NavigationManager
+@inject EventService EventService
+
+<h2>Upcoming Events</h2>
+
+@if (PaginatedEvents == null || PaginatedEvents.Count == 0)
+{
+    <p>No events available at the moment.</p>
+}
+else
+{
+    <div class="events-grid">
+        @foreach (var eventItem in PaginatedEvents)
+        {
+            <EventCard EventName="@eventItem.Name" EventDate="@eventItem.Date" EventLocation="@eventItem.Location" EventId="@eventItem.Id">
+                <button class="btn btn-primary" @onclick="() => OnLearnMoreClicked(eventItem.Id)">Learn More</button>
+            </EventCard>
+        }
+    </div>
+
+    <Pagination CurrentPage="@_currentPage" 
+                TotalPages="@TotalPages" 
+                OnPageChanged="@HandlePageChanged" />
+}
+
+@code {
+    private List<Event> Events = new();
+    private List<Event> PaginatedEvents = new();
+    private int _currentPage = 1;
+    private const int PageSize = 5;
+
+    private int TotalPages => Events?.Count > 0 ? (int)Math.Ceiling((double)Events.Count / PageSize) : 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Events = EventService.GetAllEvents() ?? new List<Event>();
+        UpdatePagination();
+        await base.OnInitializedAsync();
+    }
+
+    private void UpdatePagination()
+    {
+        if (Events?.Any() == true)
+        {
+            var skip = (_currentPage - 1) * PageSize;
+            PaginatedEvents = Events.Skip(skip).Take(PageSize).ToList();
+        }
+        else
+        {
+            PaginatedEvents = new List<Event>();
+        }
+    }
+
+
+    private void HandlePageChanged(int newPage)
+    {
+        _currentPage = newPage;
+        UpdatePagination();
+        StateHasChanged();
+    }
+
+    private void OnLearnMoreClicked(int eventId)
+    {
+        NavigationManager.NavigateTo($"/events/details/{eventId}");
+    }
+}

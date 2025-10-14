@@ -1,0 +1,77 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">EventEase</a>
+        
+        @if (currentUser != null && currentUser.IsLoggedIn)
+        {
+            <div class="user-info">
+                <span class="user-greeting">Hello, @currentUser.Name</span>
+                <button class="btn btn-outline-light btn-sm" @onclick="HandleLogout">Logout</button>
+            </div>
+        }
+        
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="events">
+                <span class="bi bi-calendar-event-fill-nav-menu" aria-hidden="true"></span> Events
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+@using EventEaseApp.Services
+@inject UserSessionService UserSessionService
+@implements IDisposable
+
+@code {
+    private bool collapseNavMenu = true;
+    private UserSessionService.UserSession? currentUser;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load current user session
+        currentUser = await UserSessionService.GetCurrentSessionAsync();
+        
+        // Subscribe to session changes
+        UserSessionService.OnSessionChanged += HandleSessionChanged;
+        
+        StateHasChanged();
+    }
+
+    private void HandleSessionChanged(UserSessionService.UserSession? session)
+    {
+        currentUser = session;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleLogout()
+    {
+        await UserSessionService.LogoutUserAsync();
+        currentUser = null;
+        StateHasChanged();
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    public void Dispose()
+    {
+        UserSessionService.OnSessionChanged -= HandleSessionChanged;
+    }
+}

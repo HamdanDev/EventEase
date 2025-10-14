@@ -1,0 +1,267 @@
+@page "/events/register/{EventId:int}"
+
+@using EventEaseApp.Services
+@using System.ComponentModel.DataAnnotations
+
+@inject EventService EventService
+@inject AttendanceService AttendanceService
+@inject UserSessionService UserSessionService
+@inject NavigationManager NavigationManager
+
+<div class="registration-container">
+    @if (selectedEvent != null)
+    {
+        <div class="event-header">
+            <h1>Register for Event</h1>
+            <div class="event-info">
+                <h3>@selectedEvent.Name</h3>
+                <p class="event-details">
+                    <span class="event-date">📅 @selectedEvent.Date.ToString("MMMM dd, yyyy")</span>
+                    <span class="event-location">📍 @selectedEvent.Location</span>
+                </p>
+            </div>
+        </div>
+
+        @if (isAlreadyRegistered)
+        {
+            <div class="alert alert-info">
+                <h4>✅ Already Registered</h4>
+                <p>You are already registered for this event. Check your registration details below:</p>
+                @if (existingRegistration != null)
+                {
+                    <div class="registration-details">
+                        <p><strong>Registration Date:</strong> @existingRegistration.RegistrationDate.ToString("MMMM dd, yyyy hh:mm tt")</p>
+                        <p><strong>Status:</strong> @existingRegistration.Status</p>
+                        @if (!string.IsNullOrEmpty(existingRegistration.SpecialRequests))
+                        {
+                            <p><strong>Special Requests:</strong> @existingRegistration.SpecialRequests</p>
+                        }
+                    </div>
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-danger" @onclick="CancelRegistration">Cancel Registration</button>
+                        <a href="/events" class="btn btn-secondary">Back to Events</a>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <EditForm Model="@registrationForm" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="alert alert-danger" />
+
+                @if (showSuccessMessage)
+                {
+                    <div class="alert alert-success">
+                        <h4>🎉 Registration Successful!</h4>
+                        <p>You have been successfully registered for <strong>@selectedEvent.Name</strong>.</p>
+                        <p>A confirmation will be saved to your session.</p>
+                    </div>
+                }
+
+                @if (showErrorMessage)
+                {
+                    <div class="alert alert-danger">
+                        <h4>❌ Registration Failed</h4>
+                        <p>@errorMessage</p>
+                    </div>
+                }
+
+                <div class="form-section">
+                    <h4>Personal Information</h4>
+                    
+                    <div class="form-group">
+                        <label for="name">Full Name <span class="required">*</span></label>
+                        <InputText id="name" @bind-Value="registrationForm.Name" class="form-control" placeholder="Enter your full name" />
+                        <ValidationMessage For="@(() => registrationForm.Name)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address <span class="required">*</span></label>
+                        <InputText id="email" @bind-Value="registrationForm.Email" class="form-control" placeholder="Enter your email address" />
+                        <ValidationMessage For="@(() => registrationForm.Email)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <InputText id="phone" @bind-Value="registrationForm.PhoneNumber" class="form-control" placeholder="Enter your phone number (optional)" />
+                        <ValidationMessage For="@(() => registrationForm.PhoneNumber)" />
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>Additional Information</h4>
+                    
+                    <div class="form-group">
+                        <label for="specialRequests">Special Requests or Dietary Requirements</label>
+                        <InputTextArea id="specialRequests" @bind-Value="registrationForm.SpecialRequests" class="form-control" rows="3" 
+                                       placeholder="Any special accommodations, dietary restrictions, or accessibility needs..." />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            <InputCheckbox @bind-Value="registrationForm.EmailNotifications" class="form-check-input" />
+                            Send me email notifications about this event
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span>Registering...</span>
+                        }
+                        else
+                        {
+                            <span>🎫 Register for Event</span>
+                        }
+                    </button>
+                    <a href="/events/details/@EventId" class="btn btn-secondary">Back to Event Details</a>
+                    <a href="/events" class="btn btn-outline-secondary">Back to Events</a>
+                </div>
+            </EditForm>
+        }
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            <h4>Event Not Found</h4>
+            <p>The event you're trying to register for could not be found.</p>
+            <a href="/events" class="btn btn-primary">View All Events</a>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int EventId { get; set; }
+
+    private Event? selectedEvent;
+    private RegistrationFormModel registrationForm = new();
+    private AttendanceService.EventRegistration? existingRegistration;
+    private bool isAlreadyRegistered = false;
+    private bool isSubmitting = false;
+    private bool showSuccessMessage = false;
+    private bool showErrorMessage = false;
+    private string errorMessage = "";
+
+    public class RegistrationFormModel
+    {
+        [Required(ErrorMessage = "Name is required")]
+        [StringLength(100, MinimumLength = 2, ErrorMessage = "Name must be between 2 and 100 characters")]
+        public string Name { get; set; } = "";
+
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address")]
+        public string Email { get; set; } = "";
+
+        [Phone(ErrorMessage = "Please enter a valid phone number")]
+        public string PhoneNumber { get; set; } = "";
+
+        [StringLength(500, ErrorMessage = "Special requests cannot exceed 500 characters")]
+        public string SpecialRequests { get; set; } = "";
+
+        public bool EmailNotifications { get; set; } = true;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load the event details
+        selectedEvent = EventService.GetEventById(EventId);
+        
+        if (selectedEvent == null)
+        {
+            return;
+        }
+
+        // Check if user is already registered
+        isAlreadyRegistered = await AttendanceService.IsUserRegisteredForEventAsync(EventId.ToString());
+        
+        if (isAlreadyRegistered)
+        {
+            var session = await UserSessionService.GetCurrentSessionAsync();
+            if (session != null)
+            {
+                existingRegistration = await AttendanceService.GetRegistrationAsync(EventId.ToString(), session.UserId);
+            }
+        }
+        
+        // Pre-fill form with user session data if available
+        await PreFillFormFromSession();
+    }
+
+    private async Task PreFillFormFromSession()
+    {
+        var session = await UserSessionService.GetCurrentSessionAsync();
+        if (session != null && session.IsLoggedIn)
+        {
+            registrationForm.Name = session.Name;
+            registrationForm.Email = session.Email;
+            registrationForm.PhoneNumber = session.PhoneNumber;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (selectedEvent == null || isSubmitting) return;
+
+        isSubmitting = true;
+        showSuccessMessage = false;
+        showErrorMessage = false;
+
+        try
+        {
+            // Create/update user session if not logged in
+            var session = await UserSessionService.GetCurrentSessionAsync();
+            if (session == null || !session.IsLoggedIn)
+            {
+                await UserSessionService.LoginUserAsync(
+                    registrationForm.Name, 
+                    registrationForm.Email, 
+                    registrationForm.PhoneNumber);
+            }
+
+            // Register for the event
+            var registration = await AttendanceService.RegisterForEventAsync(
+                EventId.ToString(),
+                registrationForm.Name,
+                registrationForm.Email,
+                registrationForm.PhoneNumber,
+                registrationForm.SpecialRequests,
+                registrationForm.EmailNotifications
+            );
+
+            showSuccessMessage = true;
+            isAlreadyRegistered = true;
+            existingRegistration = registration;
+
+            // Redirect after a short delay
+            await Task.Delay(2000);
+            NavigationManager.NavigateTo($"/events/details/{EventId}");
+        }
+        catch (Exception ex)
+        {
+            showErrorMessage = true;
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private async Task CancelRegistration()
+    {
+        if (selectedEvent == null) return;
+
+        var success = await AttendanceService.CancelRegistrationAsync(EventId.ToString());
+        if (success)
+        {
+            isAlreadyRegistered = false;
+            existingRegistration = null;
+            StateHasChanged();
+        }
+    }
+}

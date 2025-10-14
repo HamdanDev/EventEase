@@ -1,0 +1,23 @@
+EventEase/
+├── Pages/
+│   ├── Events/                    # Event-related components
+│   │   ├── EventList.razor        # Main events grid view
+│   │   ├── EventList.razor.css    
+│   │   ├── EventDetails.razor     # Event detail view
+│   │   ├── EventCard.razor        # Reusable event card
+│   │   ├── EventCard.razor.css    
+│   │   └── EventRegistration.razor # Event registration form
+│   │
+│   ├── Shared/                    # Reusable components
+│   │   ├── Pagination.razor       # Reusable pagination component
+│   │   └── Pagination.razor.css   
+│   │
+│   ├── Error/                     # Error pages
+│   │   ├── NotFound.razor         # 404 page (improved design)
+│   │   └── NotFound.razor.css     
+│   │
+│   └── Home.razor                 # Homepage
+│
+├── Layout/                        # Application layout
+├── Services/                      # Business logic
+└── wwwroot/                      # Static files

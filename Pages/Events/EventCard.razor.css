@@ -1,0 +1,85 @@
+.event-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: white;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.event-image-placeholder {
+    width: 100%;
+    height: 180px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.event-image-placeholder::after {
+    content: "📸 Event Image";
+    opacity: 0.8;
+}
+
+.event-content {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-title {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    line-height: 1.3;
+}
+
+.event-title a {
+    text-decoration: none;
+    color: #333;
+    transition: color 0.2s;
+}
+
+.event-title a:hover {
+    color: #007bff;
+}
+
+.event-date {
+    margin: 0 0 0.5rem 0;
+    color: #666;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.event-location {
+    margin: 0 0 1rem 0;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.event-actions {
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+.event-actions .btn {
+    width: 100%;
+}
+
+.error {
+    color: #dc3545;
+    font-style: italic;
+    padding: 1rem;
+    text-align: center;
+}

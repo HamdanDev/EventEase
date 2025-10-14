@@ -1,0 +1,43 @@
+@using System.Globalization
+
+<div class="event-card">
+    @if (string.IsNullOrWhiteSpace(EventName) || EventDate == default || string.IsNullOrWhiteSpace(EventLocation))
+    {
+        <p class="error">Invalid event data provided.</p>
+    }
+    else
+    {
+        <div class="event-image-placeholder"></div>
+        <div class="event-content">
+            <h3 class="event-title">
+                <a href="/events/details/@EventId">@EventName</a>
+            </h3>
+            <p class="event-date">@EventDate.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture)</p>
+            <p class="event-location">@EventLocation</p>
+            
+            @if (ChildContent != null)
+            {
+                <div class="event-actions">
+                    @ChildContent
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string EventName { get; set; } = string.Empty;
+
+    [Parameter]
+    public DateTime EventDate { get; set; }
+
+    [Parameter]
+    public string EventLocation { get; set; } = string.Empty;
+
+    [Parameter]
+    public int EventId { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

@@ -1,0 +1,117 @@
+﻿@page "/"
+
+<PageTitle>EventEase - Home</PageTitle>
+
+<div class="hero-section">
+    <div class="hero-background">
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+            <div class="shape shape-5"></div>
+        </div>
+    </div>
+    
+    <div class="hero-content">
+        <div class="hero-title-container">
+            <h1 class="hero-title">
+                <span class="title-word word-1">Event Ease</span>
+            </h1>
+            <div class="hero-subtitle">
+                <span class="subtitle-text">Simplifying Event Management</span>
+                <span class="subtitle-emoji">🎉</span>
+            </div>
+        </div>
+        
+        <p class="hero-description">
+            Discover, register, and manage your events with ease. 
+            From corporate gatherings to social celebrations, 
+            we make event participation seamless and enjoyable.
+        </p>
+        
+        <div class="hero-features">
+            <div class="feature-item">
+                <div class="feature-icon">📅</div>
+                <span>Browse Events</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🎫</div>
+                <span>Easy Registration</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">👥</div>
+                <span>Track Attendance</span>
+            </div>
+        </div>
+        
+        <div class="hero-actions">
+            <a href="/events" class="btn btn-primary btn-hero">
+                <span class="btn-text">Explore Events</span>
+                <span class="btn-icon">→</span>
+            </a>
+            <button class="btn btn-outline btn-hero" @onclick="ScrollToFeatures">
+                <span class="btn-text">Learn More</span>
+                <span class="btn-icon">↓</span>
+            </button>
+        </div>
+    </div>
+    
+    <div class="scroll-indicator">
+        <div class="scroll-arrow">
+            <span>↓</span>
+        </div>
+    </div>
+</div>
+
+<div class="features-section" id="features">
+    <div class="container">
+        <h2 class="section-title">Why Choose EventEase?</h2>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="card-icon">🚀</div>
+                <h3>Fast & Intuitive</h3>
+                <p>Quick registration process with smart form validation and real-time feedback.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="card-icon">💾</div>
+                <h3>Session Management</h3>
+                <p>Your data is saved automatically. Resume where you left off anytime.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="card-icon">📊</div>
+                <h3>Track Everything</h3>
+                <p>Monitor your registrations, attendance, and event participation history.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="card-icon">📱</div>
+                <h3>Mobile Ready</h3>
+                <p>Perfect experience on any device - desktop, tablet, or mobile.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="card-icon">🔒</div>
+                <h3>Secure & Private</h3>
+                <p>Your personal information is stored securely in your browser.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="card-icon">⚡</div>
+                <h3>Real-time Updates</h3>
+                <p>Get instant notifications and updates about your registered events.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private async Task ScrollToFeatures()
+    {
+        await Task.Delay(100); // Small delay to ensure smooth animation
+        // In a real implementation, you could use JavaScript interop to scroll smoothly
+    }
+}

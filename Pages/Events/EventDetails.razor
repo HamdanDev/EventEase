@@ -1,0 +1,152 @@
+@page "/events/details/{EventId:int}"
+
+@using EventEaseApp.Services
+
+@inject EventService EventService
+@inject AttendanceService AttendanceService
+@inject UserSessionService UserSessionService
+@inject NavigationManager NavigationManager
+
+<div class="event-details-container">
+    @if (EventDetailsModel == null)
+    {
+        <div class="alert alert-warning">
+            <h4>Event Not Found</h4>
+            <p>Event not found. Please check the event ID and try again.</p>
+            <a href="/events" class="btn btn-primary">Return to Events</a>
+        </div>
+    }
+    else
+    {
+        <div class="event-header">
+            <h1>@EventDetailsModel.Name</h1>
+            @if (isRegistered)
+            {
+                <div class="registration-badge">
+                    <span class="badge badge-success">✅ Registered</span>
+                </div>
+            }
+        </div>
+
+        <div class="event-info-grid">
+            <div class="event-main-info">
+                <div class="info-item">
+                    <span class="info-icon">📅</span>
+                    <div>
+                        <strong>Date & Time</strong>
+                        <p>@EventDetailsModel.Date.ToString("MMMM dd, yyyy")</p>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-icon">📍</span>
+                    <div>
+                        <strong>Location</strong>
+                        <p>@EventDetailsModel.Location</p>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-icon">👥</span>
+                    <div>
+                        <strong>Registration Status</strong>
+                        <p>@registrationCount registered participants</p>
+                    </div>
+                </div>
+            </div>
+
+            @if (isRegistered && registrationDetails != null)
+            {
+                <div class="registration-info">
+                    <h4>Your Registration</h4>
+                    <div class="registration-details">
+                        <p><strong>Registration Date:</strong> @registrationDetails.RegistrationDate.ToString("MMMM dd, yyyy hh:mm tt")</p>
+                        <p><strong>Status:</strong> <span class="status-@registrationDetails.Status.ToString().ToLower()">@registrationDetails.Status</span></p>
+                        @if (!string.IsNullOrEmpty(registrationDetails.SpecialRequests))
+                        {
+                            <p><strong>Special Requests:</strong> @registrationDetails.SpecialRequests</p>
+                        }
+                        <p><strong>Email Notifications:</strong> @(registrationDetails.EmailNotifications ? "Enabled" : "Disabled")</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="action-buttons">
+            @if (isRegistered)
+            {
+                <button class="btn btn-outline-primary" @onclick="() => NavigateToRegistration()">Update Registration</button>
+                <button class="btn btn-outline-danger" @onclick="CancelRegistration">Cancel Registration</button>
+            }
+            else
+            {
+                <a href="/events/register/@EventDetailsModel.Id" class="btn btn-success btn-lg">
+                    🎫 Register for Event
+                </a>
+            }
+            <a href="/events" class="btn btn-secondary">← Return to Events</a>
+        </div>
+
+        @if (showCancellationMessage)
+        {
+            <div class="alert alert-info">
+                <p>Registration cancelled successfully. You can register again if you change your mind.</p>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int EventId { get; set; }
+
+    private Event? EventDetailsModel;
+    private bool isRegistered = false;
+    private AttendanceService.EventRegistration? registrationDetails;
+    private int registrationCount = 0;
+    private bool showCancellationMessage = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        EventDetailsModel = EventService.GetEventById(EventId);
+
+        if (EventDetailsModel == null)
+        {
+            NavigationManager.NavigateTo("/404");
+            return;
+        }
+
+        // Check registration status
+        isRegistered = await AttendanceService.IsUserRegisteredForEventAsync(EventId.ToString());
+        
+        if (isRegistered)
+        {
+            var session = await UserSessionService.GetCurrentSessionAsync();
+            if (session != null)
+            {
+                registrationDetails = await AttendanceService.GetRegistrationAsync(EventId.ToString(), session.UserId);
+            }
+        }
+
+        // Get registration count
+        registrationCount = await AttendanceService.GetEventRegistrationCountAsync(EventId.ToString());
+    }
+
+    private void NavigateToRegistration()
+    {
+        NavigationManager.NavigateTo($"/events/register/{EventId}");
+    }
+
+    private async Task CancelRegistration()
+    {
+        var success = await AttendanceService.CancelRegistrationAsync(EventId.ToString());
+        if (success)
+        {
+            isRegistered = false;
+            registrationDetails = null;
+            showCancellationMessage = true;
+            registrationCount = await AttendanceService.GetEventRegistrationCountAsync(EventId.ToString());
+            StateHasChanged();
+        }
+    }
+}
