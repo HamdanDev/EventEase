@@ -1,5 +1,8 @@
 # EventEase - Complete Feature Implementation Summary
 
+<img width="1920" height="917" alt="image" src="https://github.com/user-attachments/assets/15dc759c-e09e-42f9-aed5-a5b7bda360b9" />
+
+
 ## 🎉 Complete Feature Implementation Summary
 
 ### ✅ 1. Registration Form with Validation
