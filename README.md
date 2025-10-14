@@ -1,6 +1,19 @@
 # EventEase - Complete Feature Implementation Summary
 
-<img width="1920" height="917" alt="image" src="https://github.com/user-attachments/assets/15dc759c-e09e-42f9-aed5-a5b7bda360b9" />
+<img width="1112" height="752" alt="image" src="https://github.com/user-attachments/assets/ca57c7b6-ae90-4160-99dd-95124bc64f98" />
+
+<img width="1112" height="752" alt="image" src="https://github.com/user-attachments/assets/93d160b2-6582-45d7-9e35-c190cca6219c" />
+
+<img width="1112" height="752" alt="image" src="https://github.com/user-attachments/assets/d744bcf9-cbb1-461a-9e86-910598c7ef71" />
+
+<img width="1112" height="752" alt="image" src="https://github.com/user-attachments/assets/09a95659-e30e-41bc-9282-15e961ac4f66" />
+
+<img width="1112" height="752" alt="image" src="https://github.com/user-attachments/assets/4958aa02-76f9-4cce-a4c0-a9b46be52f19" />
+
+
+
+
+
 
 
 ## 🎉 Complete Feature Implementation Summary
